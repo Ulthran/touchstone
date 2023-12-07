@@ -15,7 +15,7 @@ function App({ signOut, user }) {
     <BrowserRouter>
       <Routes>
         <Route path="/page2" element={<Page2 />} />
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
       </Routes>
     </BrowserRouter>
   );
