@@ -1,0 +1,6 @@
+type JournalEntry @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  date: AWSDateTime
+  prompt: String
+  entry: String
+}

@@ -3,7 +3,14 @@ import HomePage from './Pages/HomePage';
 import Page2 from './Pages/Page2';
 import './App.css';
 
-function App() {
+import { Amplify } from 'aws-amplify';
+
+import { withAuthenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+import config from './amplifyconfiguration.json';
+Amplify.configure(config);
+
+function App({ signOut, user }) {
   return (
     <BrowserRouter>
       <Routes>
@@ -14,4 +21,4 @@ function App() {
   );
 }
 
-export default App;
+export default withAuthenticator(App);
