@@ -1,14 +1,15 @@
-import Container from 'react-bootstrap/Container';
 import { Link } from 'react-router-dom';
+
+import Journey from '../Components/Journey';
 
 function HomePage({ user, signOut }) {
   return (
-    <Container>
-      <h1>Page 1</h1>
+    <div className='container flex flex-wrap flex-col mx-auto md:w-1/2 p-4 m-4 justify-center items-center'>
+      <h1>HOME PAGE</h1>
       <Link to="/page2">Go to Page 2</Link>
 
-      <p>Hi {user}! Welcome to your Touchstone!</p>
-    </Container>
+      <Journey />
+    </div>
   );
 }
 
