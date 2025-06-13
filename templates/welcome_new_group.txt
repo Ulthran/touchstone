@@ -1,0 +1,2 @@
+Welcome {first}! A new group has been created for you with id {gid}.
+If you were expecting to join an existing group, please let us know.

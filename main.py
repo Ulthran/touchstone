@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional, List
 
 from email_manager import EmailManager
+from template_utils import render_template
 
 DATA_DIR = Path("data")
 LAST_RUN_FILE = Path("last_processed.txt")
@@ -90,17 +91,19 @@ def handle_signup(manager: EmailManager, body: str) -> None:
         # Send welcome email to all members of the existing group
         recipients = get_group_emails(gid)
         subject = "Welcome to the group"
-        body = (
-            f"{first} {last} has joined your group!\n"
-            "Feel free to reach out and introduce yourselves."
+        body = render_template(
+            "welcome_existing_group",
+            first=first,
+            last=last,
         )
         manager.send_email(recipients, subject, body)
     else:
         # New group was created
         subject = "Welcome to Touchstone"
-        body = (
-            f"Welcome {first}! A new group has been created for you with id {gid}.\n"
-            "If you were expecting to join an existing group, please let us know."
+        body = render_template(
+            "welcome_new_group",
+            first=first,
+            gid=gid,
         )
         manager.send_email([email], subject, body)
 

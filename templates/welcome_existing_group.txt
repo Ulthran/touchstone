@@ -1,0 +1,2 @@
+{first} {last} has joined your group!
+Feel free to reach out and introduce yourselves.
