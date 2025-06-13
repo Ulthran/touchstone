@@ -36,12 +36,12 @@ report back to everyone.
 
 ## Scheduling with cron
 
-A minimal `master.py` script is provided for running the workflow
+A minimal `main.py` script is provided for running the workflow
 from a cron job. For example, to trigger it at noon on the first day
 of each month add the following line to your crontab:
 
 ```
-0 12 1 * * /usr/bin/python /path/to/master.py >> ~/touchstone.log 2>&1
+0 12 1 * * /usr/bin/python /path/to/main.py >> ~/touchstone.log 2>&1
 ```
 
 This is a bare‑bones example and should be extended with proper error
