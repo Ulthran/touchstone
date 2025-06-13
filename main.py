@@ -3,9 +3,9 @@ import csv
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Dict
 
-from email_manager import EmailManager
+from email_manager import EmailManager, compile_report
 from template_utils import render_template
 
 DATA_DIR = Path("data")
@@ -60,6 +60,25 @@ def get_group_emails(group_id: str) -> List[str]:
     return emails
 
 
+def find_group_for_email(email: str) -> Optional[str]:
+    """Return the group id for the given member email."""
+    for gid_dir in DATA_DIR.iterdir():
+        members_path = gid_dir / "members.csv"
+        if not members_path.exists():
+            continue
+        with members_path.open(newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row.get("email", "").lower() == email.lower():
+                    return gid_dir.name
+    return None
+
+
+def _sanitize(text: str) -> str:
+    """Sanitize text for use in filenames."""
+    return text.replace("@", "_at_").replace("/", "_").replace("\\", "_")
+
+
 def parse_signup(body: str) -> Optional[dict]:
     """Extract signup information from a form submission email."""
     info = {}
@@ -108,9 +127,39 @@ def handle_signup(manager: EmailManager, body: str) -> None:
         manager.send_email([email], subject, body)
 
 
-def handle_user_email(msg: dict) -> None:
-    """Placeholder for processing user emails."""
-    print(f"Received user email from {msg['from']}")
+def handle_user_email(msg: dict, group_messages: Dict[str, List[dict]]) -> None:
+    """Process a user update email and store image attachments."""
+    sender = msg["from"]
+    gid = find_group_for_email(sender)
+    if not gid:
+        print(f"Unknown sender {sender}")
+        return
+
+    date_val: datetime = msg.get("date", datetime.utcnow())
+    year = str(date_val.year)
+    month = f"{date_val.month:02d}"
+    asset_dir = DATA_DIR / gid / "assets" / year / month
+    asset_dir.mkdir(parents=True, exist_ok=True)
+
+    prefix = _sanitize(sender)
+    existing = list(asset_dir.glob(f"{prefix}_*"))
+    count = len(existing)
+    saved_paths: List[str] = []
+    for filename, content in msg.get("attachments", []):
+        if count >= 5:
+            break
+        ext = Path(filename).suffix or ""
+        dest = asset_dir / f"{prefix}_{count+1}{ext}"
+        try:
+            with dest.open("wb") as f:
+                f.write(content)
+            saved_paths.append(str(dest))
+            count += 1
+        except Exception:
+            continue
+
+    msg["saved_images"] = saved_paths
+    group_messages.setdefault(gid, []).append(msg)
 
 
 def load_last_run() -> datetime:
@@ -136,11 +185,20 @@ def main() -> None:
     manager = EmailManager(address, password)
     since = load_last_run()
     messages = manager.fetch_messages(since=since)
+    group_messages: Dict[str, List[dict]] = {}
     for msg in messages:
         if msg["from"].lower() == "noreply@carrd.com":
             handle_signup(manager, msg["body"])
         else:
-            handle_user_email(msg)
+            handle_user_email(msg, group_messages)
+
+    for gid, msgs in group_messages.items():
+        recipients = get_group_emails(gid)
+        if not recipients:
+            continue
+        body, images = compile_report(msgs)
+        subject = f"Monthly Report {datetime.utcnow().strftime('%B %Y')}"
+        manager.send_email(recipients, subject, body, attachments=images)
     save_last_run(datetime.utcnow())
 
 
