@@ -3,7 +3,7 @@ import csv
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from email_manager import EmailManager
 
@@ -39,6 +39,26 @@ def add_member(first: str, last: str, email: str, group_id: Optional[str] = None
     return group_id
 
 
+def group_exists(group_id: str) -> bool:
+    """Return True if the given group id directory exists."""
+    return (DATA_DIR / group_id).exists()
+
+
+def get_group_emails(group_id: str) -> List[str]:
+    """Read all member emails for the specified group."""
+    members_path = DATA_DIR / group_id / "members.csv"
+    if not members_path.exists():
+        return []
+    emails: List[str] = []
+    with members_path.open(newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            email = row.get("email")
+            if email:
+                emails.append(email)
+    return emails
+
+
 def parse_signup(body: str) -> Optional[dict]:
     """Extract signup information from a form submission email."""
     info = {}
@@ -51,17 +71,38 @@ def parse_signup(body: str) -> Optional[dict]:
     return info
 
 
-def handle_signup(body: str) -> None:
+def handle_signup(manager: EmailManager, body: str) -> None:
     data = parse_signup(body)
     if not data:
         print("Invalid signup email - missing data")
         return
-    group_id = data.get("group id")
+
+    requested_gid = data.get("group id")
+    exists = bool(requested_gid and group_exists(requested_gid))
     first = data.get("first name", "")
     last = data.get("last name", "")
     email = data.get("email")
-    gid = add_member(first, last, email, group_id)
+
+    gid = add_member(first, last, email, requested_gid if exists else None)
     print(f"Added {email} to group {gid}")
+
+    if exists:
+        # Send welcome email to all members of the existing group
+        recipients = get_group_emails(gid)
+        subject = "Welcome to the group"
+        body = (
+            f"{first} {last} has joined your group!\n"
+            "Feel free to reach out and introduce yourselves."
+        )
+        manager.send_email(recipients, subject, body)
+    else:
+        # New group was created
+        subject = "Welcome to Touchstone"
+        body = (
+            f"Welcome {first}! A new group has been created for you with id {gid}.\n"
+            "If you were expecting to join an existing group, please let us know."
+        )
+        manager.send_email([email], subject, body)
 
 
 def handle_user_email(msg: dict) -> None:
@@ -94,7 +135,7 @@ def main() -> None:
     messages = manager.fetch_messages(since=since)
     for msg in messages:
         if msg["from"].lower() == "noreply@carrd.com":
-            handle_signup(msg["body"])
+            handle_signup(manager, msg["body"])
         else:
             handle_user_email(msg)
     save_last_run(datetime.utcnow())
