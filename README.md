@@ -16,6 +16,13 @@ SMTP/IMAP. Follow these steps:
 3. Store the generated password in an environment variable named
    `GMAIL_APP_PASSWORD`.
 
+## Email templates
+
+All outgoing message bodies live in the `templates/` directory. Each
+template is a plain text file that can be customised directly. At
+runtime the scripts load these files and format them with any required
+values before sending emails.
+
 ## Running on the command line
 
 Set the following environment variables before running:

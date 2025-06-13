@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List, Dict, Optional
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from template_utils import render_template
 
 
 class EmailManager:
@@ -105,11 +106,7 @@ if __name__ == "__main__":
     else:
         manager = EmailManager(addr, pw)
         subject = "Monthly update request"
-        body = (
-            "Hi friends,\n\n"
-            "Please reply to this email with your monthly updates.\n\n"
-            "Thanks!"
-        )
+        body = render_template("update_request")
         manager.send_email(recips, subject, body)
         print("Update request sent.")
 
