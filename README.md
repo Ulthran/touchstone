@@ -53,3 +53,12 @@ of each month add the following line to your crontab:
 
 This is a bare‑bones example and should be extended with proper error
 handling and scheduling for production use.
+
+## Example workflow
+
+To see a sample signup and reporting process without sending real emails, run:
+```bash
+python mock_interactions.py
+```
+This script prints each outgoing message for review.
+
