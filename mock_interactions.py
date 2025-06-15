@@ -9,7 +9,13 @@ class MockEmailManager:
         self.address = address
         self.sent_emails = []
 
-    def send_email(self, to_addrs, subject, body, attachments=None):
+    def send_email(
+        self, 
+        to_addrs: List[str], 
+        subject: str, 
+        body: str, 
+        attachments: Optional[List[Tuple[str, bytes]]] = None
+    ) -> None:
         self.sent_emails.append(
             {
                 "from": self.address,
