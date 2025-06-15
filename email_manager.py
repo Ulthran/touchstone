@@ -91,17 +91,21 @@ class EmailManager:
                 except Exception:
                     date_val = datetime.utcnow()
                 body, attachments = self._extract_parts(msg)
-                messages.append({
-                    "from": from_addr,
-                    "subject": subject,
-                    "body": body,
-                    "date": date_val,
-                    "attachments": attachments,
-                })
+                messages.append(
+                    {
+                        "from": from_addr,
+                        "subject": subject,
+                        "body": body,
+                        "date": date_val,
+                        "attachments": attachments,
+                    }
+                )
             return messages
 
     @staticmethod
-    def _extract_parts(msg: email.message.Message) -> Tuple[str, List[Tuple[str, bytes]]]:
+    def _extract_parts(
+        msg: email.message.Message,
+    ) -> Tuple[str, List[Tuple[str, bytes]]]:
         body = ""
         attachments: List[Tuple[str, bytes]] = []
         if msg.is_multipart():
@@ -130,7 +134,7 @@ def compile_report(messages: List[Dict[str, any]]) -> Tuple[str, List[str]]:
     attachments: List[str] = []
     for msg in messages:
         lines.append(f"From: {msg['from']}")
-        lines.append(msg['body'])
+        lines.append(msg["body"])
         lines.append("")
         attachments.extend(msg.get("saved_images", []))
     return "\n".join(lines), attachments

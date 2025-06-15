@@ -21,7 +21,9 @@ def generate_group_id() -> str:
             return gid
 
 
-def add_member(first: str, last: str, email: str, group_id: Optional[str] = None) -> str:
+def add_member(
+    first: str, last: str, email: str, group_id: Optional[str] = None
+) -> str:
     """Add a member to a group, creating the group if needed.
 
     Returns the group id the member was added to.

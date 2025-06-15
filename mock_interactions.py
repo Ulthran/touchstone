@@ -10,11 +10,11 @@ class MockEmailManager:
         self.sent_emails = []
 
     def send_email(
-        self, 
-        to_addrs: List[str], 
-        subject: str, 
-        body: str, 
-        attachments: Optional[List[Tuple[str, bytes]]] = None
+        self,
+        to_addrs: list[str],
+        subject: str,
+        body: str,
+        attachments: list[tuple[str, bytes]] = None,
     ) -> None:
         self.sent_emails.append(
             {
@@ -84,7 +84,7 @@ Email: carol@example.com
         print(f"To: {', '.join(mail['to'])}")
         print(f"Subject: {mail['subject']}")
         print(f"Body:\n{mail['body']}\n")
-        if mail['attachments']:
+        if mail["attachments"]:
             print(f"Attachments: {mail['attachments']}\n")
 
 
