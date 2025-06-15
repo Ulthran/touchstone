@@ -14,7 +14,7 @@ SMTP/IMAP. Follow these steps:
 2. Create an App Password at:
    <https://myaccount.google.com/apppasswords>
 3. Store the generated password in an environment variable named
-   `GMAIL_APP_PASSWORD`.
+   `TOUCHSTONE_GMAIL_APP_PASSWORD`.
 
 ## Email templates
 
@@ -27,9 +27,9 @@ values before sending emails.
 
 Set the following environment variables before running:
 
-- `GMAIL_ADDRESS` – your full Gmail address.
-- `GMAIL_APP_PASSWORD` – the App Password created above.
-- `RECIPIENTS` – semicolon separated list of addresses to email.
+- `TOUCHSTONE_GMAIL_ADDRESS` – your full Gmail address.
+- `TOUCHSTONE_GMAIL_APP_PASSWORD` – the App Password created above.
+- `TOUCHSTONE_RECIPIENTS` – semicolon separated list of addresses to email.
 
 Run the helper script directly for ad-hoc usage:
 
