@@ -10,6 +10,7 @@ from template_utils import render_template
 
 DATA_DIR = Path("data")
 LAST_RUN_FILE = Path("last_processed.txt")
+ERROR_LOG_FILE = Path("error.log")
 
 
 def generate_group_id() -> str:
@@ -178,14 +179,23 @@ def save_last_run(time: datetime) -> None:
     LAST_RUN_FILE.write_text(time.isoformat())
 
 
+def log_error(exc: Exception) -> None:
+    """Append a timestamped error message to the log file."""
+    with ERROR_LOG_FILE.open("a") as f:
+        f.write(f"{datetime.utcnow().isoformat()} - {repr(exc)}\n")
+
+
 def main() -> None:
-    address = os.environ.get("GMAIL_ADDRESS")
-    password = os.environ.get("GMAIL_APP_PASSWORD")
+    address = os.environ.get("TOUCHSTONE_GMAIL_ADDRESS")
+    password = os.environ.get("TOUCHSTONE_GMAIL_APP_PASSWORD")
     if not address or not password:
-        raise RuntimeError("Set GMAIL_ADDRESS and GMAIL_APP_PASSWORD env variables")
+        raise RuntimeError(
+            "Set TOUCHSTONE_GMAIL_ADDRESS and TOUCHSTONE_GMAIL_APP_PASSWORD env variables"
+        )
 
     manager = EmailManager(address, password)
     since = load_last_run()
+    save_last_run(datetime.utcnow())
     messages = manager.fetch_messages(since=since)
     group_messages: Dict[str, List[dict]] = {}
     for msg in messages:
@@ -205,4 +215,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        log_error(exc)

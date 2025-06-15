@@ -141,12 +141,14 @@ def compile_report(messages: List[Dict[str, any]]) -> Tuple[str, List[str]]:
 
 
 if __name__ == "__main__":
-    addr = os.environ.get("GMAIL_ADDRESS")
-    pw = os.environ.get("GMAIL_APP_PASSWORD")
-    recips = os.environ.get("RECIPIENTS", "").split(";")
+    addr = os.environ.get("TOUCHSTONE_GMAIL_ADDRESS")
+    pw = os.environ.get("TOUCHSTONE_GMAIL_APP_PASSWORD")
+    recips = os.environ.get("TOUCHSTONE_RECIPIENTS", "").split(";")
 
     if not addr or not pw or recips == [""]:
-        print("Set GMAIL_ADDRESS, GMAIL_APP_PASSWORD and RECIPIENTS env variables")
+        print(
+            "Set TOUCHSTONE_GMAIL_ADDRESS, TOUCHSTONE_GMAIL_APP_PASSWORD and TOUCHSTONE_RECIPIENTS env variables"
+        )
     else:
         manager = EmailManager(addr, pw)
         subject = "Monthly update request"
